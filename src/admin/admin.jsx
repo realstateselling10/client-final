@@ -162,7 +162,9 @@ const AdminPropertyManager = () => {
             await axiosInstance.delete(`/api/property/${propertyId}`, {
                 withCredentials: true,
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Origin': 'https://client-final-ten.vercel.app'
+
                 }
             });
 
