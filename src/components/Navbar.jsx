@@ -130,15 +130,14 @@ const Navbar = () => {
                             Home
                         </Link>
                         <Link
-                            to="/add-property"
+                            to="/contact"
                             className={`block px-3 py-2 rounded-lg text-base font-medium transition duration-300 ${location.pathname === '/add-property'
                                 ? 'bg-white/20 text-white'
                                 : 'text-white hover:bg-white/10'
                                 }`}
                             onClick={() => setIsOpen(false)}
                         >
-                            Add Property
-                        </Link>
+                            Contact Us                        </Link>
                         <Link
                             to="/login"
                             className={`block px-3 py-2 rounded-lg text-base font-medium transition duration-300 ${location.pathname === '/login'
