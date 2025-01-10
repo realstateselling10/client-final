@@ -224,8 +224,35 @@ const AdminPropertyManager = () => {
         navigate(`/property/${propertyId}`);
     };
 
+    // Add logout function
+    const handleLogout = () => {
+        Cookies.remove('jwtCookie');
+        navigate('/login');
+    };
+
     return (
         <Container>
+            <div>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    padding: '1rem',
+                    backgroundColor: '#f5f5f5',
+                    borderBottom: '1px solid #e0e0e0'
+                }}>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={handleLogout}
+                        style={{
+                            backgroundColor: '#ff3d00'
+                        }}
+                    >
+                        Logout
+                    </Button>
+                </div>
+            </div>
+
             <div className="flex justify-end mb-4">
 
                 <Button
