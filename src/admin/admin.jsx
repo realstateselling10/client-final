@@ -44,11 +44,16 @@ const AdminPropertyManager = () => {
     });
     const [selectedPropertyId, setSelectedPropertyId] = useState(null);
 
+    // Get token from cookie  
+    const token = Cookies.get('jwtCookie');
+    console.log("token", token);
+
     const axiosInstance = axios.create({
         baseURL: API_URL,
-        withCredentials: true, // Add this line
+        withCredentials: true,
         headers: {
-            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'Origin': 'https://client-final-ten.vercel.app'
 
         }
     });
@@ -154,19 +159,11 @@ const AdminPropertyManager = () => {
     const handleDelete = async (propertyId) => {
         if (!window.confirm("Are you sure you want to delete this property?")) return;
 
-        const token = Cookies.get('jwtCookie');
-        console.log("token", token);
+
 
         try {
             setLoading(true);
-            await axiosInstance.delete(`/api/property/${propertyId}`, {
-                withCredentials: true,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Origin': 'https://client-final-ten.vercel.app'
-
-                }
-            });
+            await axiosInstance.delete(`/api/property/${propertyId}`);
 
             // Refresh properties list after deletion
             const response = await axiosInstance.get('/api/property');
