@@ -49,7 +49,6 @@ const AdminPropertyManager = () => {
 
     // Get token from cookie  
     const token = Cookies.get('jwtCookie');
-    console.log("token", token);
 
     const axiosInstance = axios.create({
         baseURL: API_URL,
@@ -127,7 +126,6 @@ const AdminPropertyManager = () => {
                 }
 
                 propertyData.images = processedImages;
-                console.log('propertyData', propertyData);
             }
 
             if (formMode === "add") {
