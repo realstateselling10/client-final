@@ -57,9 +57,8 @@ const AdminPropertyManager = () => {
     // Add an interceptor to always add the latest token
     axiosInstance.interceptors.request.use((config) => {
         const token = Cookies.get('jwtCookie');
-        console.log("token", token);
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.Authorization = `${token}`;
         }
         return config;
     }, (error) => {
