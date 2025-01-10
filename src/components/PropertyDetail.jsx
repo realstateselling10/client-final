@@ -17,6 +17,7 @@ const PropertyDetail = () => {
             try {
                 const response = await axios.get(`${API_URL}/api/property/${id}`,
                     {
+                        withCredentials: true,
                         "headers": {
                             'Content-Type': 'application/json'
                         }
