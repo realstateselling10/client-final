@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import Cookies from 'js-cookie';
 
@@ -34,6 +34,9 @@ const AdminPropertyManager = () => {
     const [formMode, setFormMode] = useState("add");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const [contactRequests, setContactRequests] = useState([]);
+
     const [formData, setFormData] = useState({
         title: "",
         location: "",
@@ -57,13 +60,13 @@ const AdminPropertyManager = () => {
         }
     });
 
+    // Add refs for scrolling
+    const contactSectionRef = useRef(null);
+    const propertySectionRef = useRef(null);
 
-
-
-
-
-
-
+    const scrollToSection = (ref) => {
+        ref.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     // Fetch properties
     useEffect(() => {
@@ -80,6 +83,8 @@ const AdminPropertyManager = () => {
         };
 
         fetchProperties();
+        fetchContactRequests();
+
     }, []);
 
     const handleSave = async () => {
@@ -224,22 +229,59 @@ const AdminPropertyManager = () => {
         navigate(`/property/${propertyId}`);
     };
 
+    // Add function to fetch contact requests
+    const fetchContactRequests = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/api/user/all`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            setContactRequests(response.data);
+        } catch (error) {
+            setError(error.response?.data?.message || 'Error fetching contact requests');
+        }
+    };
+
+
+
+
     // Add logout function
     const handleLogout = () => {
         Cookies.remove('jwtCookie');
         navigate('/login');
     };
 
+
     return (
         <Container>
             <div>
                 <div style={{
                     display: 'flex',
-                    justifyContent: 'flex-end',
+                    justifyContent: 'space-between',
                     padding: '1rem',
                     backgroundColor: '#f5f5f5',
-                    borderBottom: '1px solid #e0e0e0'
+                    borderBottom: '1px solid #e0e0e0',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1000
                 }}>
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => scrollToSection(propertySectionRef)}
+                        >
+                            Properties
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => scrollToSection(contactSectionRef)}
+                        >
+                            Contact Requests
+                        </Button>
+                    </div>
                     <Button
                         variant="contained"
                         color="secondary"
@@ -253,76 +295,122 @@ const AdminPropertyManager = () => {
                 </div>
             </div>
 
-            <div className="flex justify-end mb-4">
+            {/* Properties Section */}
+            <div ref={propertySectionRef}>
+                <div className="flex justify-end mb-4">
 
-                <Button
-                    className="text-white text-xl bg-[#6465f1] hover:bg-[#5051c9] dark:bg-gray-800 dark:hover:bg-gray-700"
-                    variant="contained"
-                    onClick={() => handleOpenDialog(null)}
-                >
-                    Add Property
-                </Button>
-            </div>
-            {loading && <CircularProgress style={{ margin: "20px" }} />}
-            <TableContainer component={Paper} style={{ marginTop: "20px", borderRadius: "8px", boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)' }}>
-                <Table style={{ minWidth: 700 }}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell style={headerCellStyle}>Title</TableCell>
-                            <TableCell style={headerCellStyle}>Location</TableCell>
-                            <TableCell style={headerCellStyle}>Price</TableCell>
-                            <TableCell style={headerCellStyle}>Size</TableCell>
-                            <TableCell style={headerCellStyle}>Description</TableCell>
-                            <TableCell style={headerCellStyle}>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {properties.map((property, index) => (
-                            <TableRow
-                                key={property._id}
-                                style={index % 2 === 0 ? rowStyleEven : rowStyleOdd}
-                                hover
-                            >
-                                <TableCell>{property.title}</TableCell>
-                                <TableCell>{property.location}</TableCell>
-                                <TableCell>{property.price}</TableCell>
-                                <TableCell>{property.size}</TableCell>
-                                <TableCell>{property.description}</TableCell>
-
-                                <TableCell>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        onClick={() => handleNavigateToDetails(property._id)}
-                                        disabled={loading}
-                                        style={actionButtonStyle}
-                                    >
-                                        View Details
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        onClick={() => handleOpenDialog(property)}
-                                        disabled={loading}
-                                        style={{ ...actionButtonStyle, marginLeft: "10px" }}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        color="secondary"
-                                        onClick={() => handleDelete(property._id)}
-                                        style={{ ...actionButtonStyle, marginLeft: "10px" }}
-                                        disabled={loading}
-                                    >
-                                        Delete
-                                    </Button>
-                                </TableCell>
+                    <Button
+                        className="text-white text-xl bg-[#6465f1] hover:bg-[#5051c9] dark:bg-gray-800 dark:hover:bg-gray-700"
+                        variant="contained"
+                        onClick={() => handleOpenDialog(null)}
+                    >
+                        Add Property
+                    </Button>
+                </div>
+                {loading && <CircularProgress style={{ margin: "20px" }} />}
+                <TableContainer component={Paper} style={{ marginTop: "20px", borderRadius: "8px", boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)' }}>
+                    <Table style={{ minWidth: 700 }}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell style={headerCellStyle}>Title</TableCell>
+                                <TableCell style={headerCellStyle}>Location</TableCell>
+                                <TableCell style={headerCellStyle}>Price</TableCell>
+                                <TableCell style={headerCellStyle}>Size</TableCell>
+                                <TableCell style={headerCellStyle}>Description</TableCell>
+                                <TableCell style={headerCellStyle}>Actions</TableCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {properties.map((property, index) => (
+                                <TableRow
+                                    key={property._id}
+                                    style={index % 2 === 0 ? rowStyleEven : rowStyleOdd}
+                                    hover
+                                >
+                                    <TableCell>{property.title}</TableCell>
+                                    <TableCell>{property.location}</TableCell>
+                                    <TableCell>{property.price}</TableCell>
+                                    <TableCell>{property.size}</TableCell>
+                                    <TableCell>{property.description}</TableCell>
+
+                                    <TableCell>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => handleNavigateToDetails(property._id)}
+                                            disabled={loading}
+                                            style={actionButtonStyle}
+                                        >
+                                            View Details
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => handleOpenDialog(property)}
+                                            disabled={loading}
+                                            style={{ ...actionButtonStyle, marginLeft: "10px" }}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="secondary"
+                                            onClick={() => handleDelete(property._id)}
+                                            style={{ ...actionButtonStyle, marginLeft: "10px" }}
+                                            disabled={loading}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </div>
+
+            {/* Contact Requests Section */}
+            <div ref={contactSectionRef} style={{ marginTop: '2rem' }}>
+                <h2 style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 'bold',
+                    marginBottom: '1rem'
+                }}>Contact Requests</h2>
+
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell style={headerCellStyle}>Full Name</TableCell>
+                                <TableCell style={headerCellStyle}>Email</TableCell>
+                                <TableCell style={headerCellStyle}>Phone Number</TableCell>
+                                <TableCell style={headerCellStyle}>Property</TableCell>
+                                <TableCell style={headerCellStyle}>Date</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {contactRequests.map((request) => (
+                                <TableRow key={request._id}>
+                                    <TableCell>{request.fullName}</TableCell>
+                                    <TableCell>{request.email}</TableCell>
+                                    <TableCell>{request.phoneNumber}</TableCell>
+                                    <TableCell>{request.property}</TableCell>
+                                    <TableCell>{new Date(request.createdAt).toLocaleDateString()}</TableCell>
+                                </TableRow>
+                            ))}
+                            {contactRequests.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={5} style={{ textAlign: 'center' }}>
+                                        No contact requests found
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            </div>
+
+
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogTitle>{formMode === 'add' ? 'Add Property' : 'Edit Property'}</DialogTitle>
                 <DialogContent>
@@ -388,6 +476,8 @@ const AdminPropertyManager = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+
             {error && (
                 <Snackbar open={true} autoHideDuration={6000} onClose={() => setError(null)}>
                     <Alert onClose={() => setError(null)} severity="error">
