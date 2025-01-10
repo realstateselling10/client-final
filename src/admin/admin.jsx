@@ -177,7 +177,11 @@ const AdminPropertyManager = () => {
 
         try {
             setLoading(true);
-            await axiosInstance.delete(`/api/property/${propertyId}`);
+            await axiosInstance.delete(`/api/property/${propertyId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
             // Refresh properties list after deletion
             const response = await axiosInstance.get('/api/property');
