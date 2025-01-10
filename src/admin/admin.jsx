@@ -53,7 +53,6 @@ const AdminPropertyManager = () => {
         withCredentials: true,
         headers: {
             'Authorization': `Bearer ${token}`,
-            'Origin': 'https://client-final-ten.vercel.app'
 
         }
     });
